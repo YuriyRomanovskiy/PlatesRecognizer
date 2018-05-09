@@ -12,10 +12,6 @@ import java.util.Vector;
 public class CarSnapshot extends Photo {
     private static int distributor_margins =
             Intelligence.configurator.getIntProperty("carsnapshot_distributormargins");
-    //    private static int carsnapshot_projectionresize_x =
-//            Main.configurator.getIntProperty("carsnapshot_projectionresize_x");
-//    private static int carsnapshot_projectionresize_y =
-//            Main.configurator.getIntProperty("carsnapshot_projectionresize_y");
     private static int carsnapshot_graphrankfilter =
             Intelligence.configurator.getIntProperty("carsnapshot_graphrankfilter");
 
@@ -43,17 +39,17 @@ public class CarSnapshot extends Photo {
     }
 
     private Vector<Graph.Peak> computeGraph() {
-        if (graphHandle != null) return graphHandle.peaks; // graf uz bol vypocitany
+        if (graphHandle != null) return graphHandle.peaks;
 
         BufferedImage imageCopy = this.duplicateBufferedImage(this.image);
         verticalEdgeBi(imageCopy);
-        thresholding(imageCopy); // strasne moc zere
+        thresholding(imageCopy);
 
         graphHandle = this.histogram(imageCopy);
         graphHandle.rankFilter(carsnapshot_graphrankfilter);
         graphHandle.applyProbabilityDistributor(distributor);
 
-        graphHandle.findPeaks(numberOfCandidates); //sort by height
+        graphHandle.findPeaks(numberOfCandidates);
         return graphHandle.peaks;
     }
 
@@ -63,8 +59,6 @@ public class CarSnapshot extends Photo {
         Vector<Graph.Peak> peaks = computeGraph();
 
         for (int i=0; i<peaks.size(); i++) {
-            // vyseknut z povodneho! obrazka znacky, a ulozit do vektora. POZOR !!!!!! Vysekavame z povodneho, takze
-            // na suradnice vypocitane z imageCopy musime uplatnit inverznu transformaciu
             Graph.Peak p = peaks.elementAt(i);
             out.add(new Band(
                     image.getSubimage(  0  ,
@@ -90,14 +84,7 @@ public class CarSnapshot extends Photo {
 
         new ConvolveOp(new Kernel(3, 4, data), ConvolveOp.EDGE_NO_OP, null).filter(imageCopy, image);
     }
-//    public void verticalRankBi(BufferedImage image) {
-//        BufferedImage imageCopy = duplicateBi(image);
-//
-//        float data[] = new float[9];
-//        for (int i=0; i<data.length; i++) data[i] = 1.0f/data.length;
-//
-//        new ConvolveOp(new Kernel(1,data.length, data), ConvolveOp.EDGE_NO_OP, null).filter(imageCopy, image);
-//    }
+
 
     public CarSnapshotGraph histogram(BufferedImage bi) {
         CarSnapshotGraph graph = new CarSnapshotGraph(this);

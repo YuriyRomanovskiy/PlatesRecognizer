@@ -74,10 +74,9 @@ public class Graph {
 
     public Vector<Peak> peaks = null;
     public Vector<Float> yValues = new Vector<Float>();
-    // statistical informations
-    private boolean actualAverageValue = false; // su hodnoty aktualne ?
-    private boolean actualMaximumValue = false; // su hodnoty aktualne ?
-    private boolean actualMinimumValue = false; // su hodnoty aktualne ?
+    private boolean actualAverageValue = false;
+    private boolean actualMaximumValue = false;
+    private boolean actualMinimumValue = false;
     private float averageValue;
     private float maximumValue;
     private float minimumValue;
@@ -88,8 +87,6 @@ public class Graph {
         this.actualMinimumValue = false;
     }
 
-    // generic
-    // methods for searching bands in image !
     boolean allowedInterval(Vector<Peak> peaks, int xPosition) {
         for (Peak peak : peaks)
             if (peak.left <= xPosition && xPosition <= peak.right) return false;
@@ -111,45 +108,6 @@ public class Graph {
         this.deActualizeFlags();
     }
 
-//    public class PeakComparer implements Comparator {
-//        int sortBy; // 0 = podla sirky, 1 = podla velkosti, 2 = z lava do prava
-//        Vector<Float> yValues = null;
-//
-//        public PeakComparer(Vector<Float> yValues, int sortBy) {
-//            this.yValues = yValues;
-//            this.sortBy = sortBy;
-//        }
-//
-//        private float getPeakValue(Object peak) {
-//            if (this.sortBy == 0) {
-//                return ((Peak)peak).diff();
-//            } else if (this.sortBy == 1) {
-//                return this.yValues.elementAt( ((Peak)peak).center()  );
-//            } else if (this.sortBy == 2) {
-//                return ((Peak)peak).center();
-//            }
-//            return 0;
-//        }
-//
-//        public int compare(Object peak1, Object peak2) { // Peak
-//            double comparison = this.getPeakValue(peak2) - this.getPeakValue(peak1);
-//            if (comparison < 0) return -1;
-//            if (comparison > 0) return 1;
-//            return 0;
-//        }
-//    }
-
-//    float getAverageValue() {
-//        if (!this.actualAverageValue) {
-//            float sum = 0.0f;
-//            for (Float peak : this.yValues) sum += peak;
-//            this.averageValue = sum/this.yValues.size();
-//            this.actualAverageValue = true;
-//        }
-//        return this.averageValue;
-//    }
-//
-
     float getAverageValue() {
         if (!this.actualAverageValue) {
             this.averageValue = getAverageValue(0,this.yValues.size());
@@ -163,18 +121,6 @@ public class Graph {
         for (int i=a; i<b; i++) sum+= this.yValues.elementAt(i).doubleValue();
         return sum/this.yValues.size();
     }
-
-
-//    float getMaxValue() {
-//        if (!this.actualMaximumValue) {
-//            float maxValue = 0.0f;
-//            for (int i=0; i<yValues.size(); i++)
-//                maxValue = Math.max(maxValue, yValues.elementAt(i));
-//            this.maximumValue = maxValue;
-//            this.actualMaximumValue = true;
-//        }
-//        return this.maximumValue;
-//    }
 
     float getMaxValue() {
         if (!this.actualMaximumValue) {
@@ -207,18 +153,6 @@ public class Graph {
         return maxIndex;
     }
 
-//    float getMinValue() {
-//        if (!this.actualMinimumValue) {
-//            float minValue = Float.POSITIVE_INFINITY;
-//            for (int i=0; i<yValues.size(); i++)
-//                minValue = Math.min(minValue, yValues.elementAt(i));
-//
-//            this.minimumValue = minValue;
-//            this.actualMinimumValue = true;
-//        }
-//        return this.minimumValue;
-//    }
-
     float getMinValue() {
         if (!this.actualMinimumValue) {
             this.minimumValue = this.getMinValue(0, this.yValues.size());
@@ -250,7 +184,6 @@ public class Graph {
         }
         return minIndex;
     }
-//
 
     public BufferedImage renderHorizontally(int width, int height) {
         BufferedImage content = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -281,7 +214,7 @@ public class Graph {
             graphicContent.drawLine(x0,y0,x,y);
         }
 
-        if (this.peaks!=null) { // uz boli vyhladane aj peaky, renderujeme aj tie
+        if (this.peaks!=null) {
             graphicContent.setColor(Color.RED);
             int i = 0;
             double multConst = (double)width / this.yValues.size();
@@ -342,7 +275,7 @@ public class Graph {
             graphicContent.drawLine(x0,y0,x,y);
         }
 
-        if (this.peaks!=null) { // uz boli vyhladane aj peaky, renderujeme aj tie
+        if (this.peaks!=null) {
             graphicContent.setColor(Color.RED);
             int i = 0;
             double multConst = (double)height / this.yValues.size();
@@ -358,17 +291,6 @@ public class Graph {
         graphicAxis.setColor(Color.BLACK);
         graphicAxis.drawRect(5,5,content.getWidth(), content.getHeight());
 
-//        for (int ax = 0; ax < content.getWidth(); ax += 50) {
-//            graphicAxis.drawString(new Integer(ax).toString() , ax + 35, axis.getHeight()-10);
-//            graphicAxis.drawLine(ax+35, content.getHeight()+5 ,ax+35, content.getHeight()+15);
-//        }
-//
-//        for (int ay = 0; ay < content.getHeight(); ay += 20) {
-//            graphicAxis.drawString(
-//                    new Integer(new Float((1-(float)ay/content.getHeight())*100).intValue()).toString() + "%"
-//                    , 1 ,ay + 15);
-//            graphicAxis.drawLine(25,ay+5,35,ay+5);
-//        }
         graphicContent.dispose();
         graphicAxis.dispose();
         return axis;
@@ -377,7 +299,6 @@ public class Graph {
 
     public void rankFilter(int size) {
         int halfSize = size/2;
-        //Vector<Float> clone = (Vector<Float>)this.yValues.clone();
         Vector<Float> clone = new Vector<Float>(this.yValues);
 
         for (int i=halfSize; i < this.yValues.size() - halfSize;  i++) {
@@ -408,7 +329,7 @@ public class Graph {
     }
 
 
-    public float averagePeakDiff(Vector<Peak> peaks) { // not used
+    public float averagePeakDiff(Vector<Peak> peaks) {
         float sum = 0;
         for (Peak p : peaks)
             sum+= p.getDiff();

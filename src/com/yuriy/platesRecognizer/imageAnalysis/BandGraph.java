@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
 
-public class BandGraph extends Graph {/* TODO - BEGIN */
+public class BandGraph extends Graph {
     Band handle;
 
     private static double peakFootConstant =
@@ -16,7 +16,7 @@ public class BandGraph extends Graph {/* TODO - BEGIN */
 
 
     public BandGraph(Band handle) {
-        this.handle = handle; // nesie odkaz na obrazok (band), ku ktoremu sa graf vztahuje
+        this.handle = handle;
     }
 
     public class PeakComparer implements Comparator {
@@ -26,9 +26,8 @@ public class BandGraph extends Graph {/* TODO - BEGIN */
             this.yValues = yValues;
         }
 
-        private float getPeakValue(Object peak) {
-            //return ((Peak)peak).center(); // left > right
 
+        private float getPeakValue(Object peak) {
             return this.yValues.elementAt( ((Peak)peak).getCenter()  ); // velkost peaku
         }
 
@@ -43,24 +42,24 @@ public class BandGraph extends Graph {/* TODO - BEGIN */
     public Vector<Peak> findPeaks(int count) {
         Vector<Graph.Peak> outPeaks = new Vector<Peak>();
 
-        for (int c=0; c<count; c++) { // for count
+        for (int c=0; c<count; c++) {
             float maxValue = 0.0f;
             int maxIndex = 0;
-            for (int i=0; i<this.yValues.size(); i++) { // zlava doprava
-                if (allowedInterval(outPeaks, i)) { // ak potencialny vrchol sa nachadza vo "volnom" intervale, ktory nespada pod ine vrcholy
+            for (int i=0; i<this.yValues.size(); i++) {
+                if (allowedInterval(outPeaks, i)) {
                     if (this.yValues.elementAt(i) >= maxValue) {
                         maxValue = this.yValues.elementAt(i);
                         maxIndex = i;
                     }
                 }
-            } // end for int 0->max
+            }
 
-            // nasli sme najvacsi peak // urobime 1. vysek
+
             int leftIndex = indexOfLeftPeakRel(maxIndex,peakFootConstant);
             int rightIndex = indexOfRightPeakRel(maxIndex,peakFootConstant);
             int diff = rightIndex - leftIndex;
-            leftIndex -= peakDiffMultiplicationConstant * diff;   /*CONSTANT*/
-            rightIndex+= peakDiffMultiplicationConstant * diff;   /*CONSTANT*/
+            leftIndex -= peakDiffMultiplicationConstant * diff;
+            rightIndex+= peakDiffMultiplicationConstant * diff;
 
 
 
@@ -69,17 +68,14 @@ public class BandGraph extends Graph {/* TODO - BEGIN */
                     maxIndex,
                     Math.min(this.yValues.size()-1,rightIndex)
             ));
-        } // end for count
+        }
 
 
-
-        // treba filtrovat kandidatov, ktory nezodpovedaju proporciam znacky
         Vector<Peak> outPeaksFiltered = new Vector<Peak>();
         for (Peak p : outPeaks) {
-            if (p.getDiff() > 2 * this.handle.getHeight() && // ak nieje znacka prilis uzka
-                    p.getDiff() < 15 * this.handle.getHeight() // alebo nie je prilis siroka
-                    ) outPeaksFiltered.add(p);// znacka ok, bereme ju
-            // else outPeaksFiltered.add(p);// znacka ok, bereme ju
+            if (p.getDiff() > 2 * this.handle.getHeight() &&
+                    p.getDiff() < 15 * this.handle.getHeight()
+                    ) outPeaksFiltered.add(p);
         }
 
         Collections.sort(outPeaksFiltered, (Comparator<? super Graph.Peak>)
@@ -106,5 +102,4 @@ public class BandGraph extends Graph {/* TODO - BEGIN */
         }
         return Math.min(yValues.size(), index);
     }
-        /* TODO - END */
 }

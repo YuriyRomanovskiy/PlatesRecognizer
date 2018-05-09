@@ -1,7 +1,6 @@
 package com.yuriy.platesRecognizer;
 
 import com.yuriy.platesRecognizer.configurator.Configurator;
-import com.yuriy.platesRecognizer.gui.ReportGenerator;
 import com.yuriy.platesRecognizer.gui.forms.MainForm;
 import com.yuriy.platesRecognizer.imageAnalysis.CarSnapshot;
 import com.yuriy.platesRecognizer.imageAnalysis.Char;
@@ -12,18 +11,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class Main {
-    public static ReportGenerator rg = new ReportGenerator();
     public static Intelligence systemLogic;
     public static String helpText = "" +
             "-----------------------------------------------------------\n"+
-            "Automatic number plate recognition system\n"+
-            "Copyright (c) Ondrej Martinsky, 2006-2007\n"+
-            "\n"+
-            "Licensed under the Educational Community License,\n"+
-            "\n"+
-            "Usage : java -jar anpr.jar [-options]\n"+
-            "\n"+
-            "Where options include:\n"+
+           "Options:\n"+
             "\n"+
             "    -help         Displays this help\n"+
             "    -gui          Run GUI viewer (default choice)\n"+
@@ -45,8 +36,7 @@ public class Main {
             "                  it to <dstdir>.";
 
 
-    // normalizuje abecedu v zdrojovom adresari a vysledok ulozi do cieloveho adresara
-    public static void newAlphabet(String srcdir, String dstdir) throws Exception { // NOT USED
+    public static void newAlphabet(String srcdir, String dstdir) throws Exception {
         File folder = new File(srcdir);
         if (!folder.exists()) throw new IOException("Source folder doesn't exists");
         if (!new File(dstdir).exists()) throw new IOException("Destination folder doesn't exists");
@@ -61,7 +51,6 @@ public class Main {
         }
     }
 
-    // DONE z danej abecedy precita deskriptory, tie sa nauci, a ulozi neuronovu siet
     public static void learnAlphabet(String destinationFile) throws Exception {
         try {
             File f = new File(destinationFile);
@@ -78,24 +67,11 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         if (args.length==0 || (args.length==1 && args[0].equals("-gui"))) {
-            // DONE run gui
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            //FrameComponentInit frameComponentInit = new FrameComponentInit(); // show wait
-            //Main.systemLogic = new Intelligence(false);
-            //frameComponentInit.dispose(); // hide wait
-            //FrameMain mainFrame = new FrameMain();
-            MainForm f = new MainForm();
-//            try {
-//                Main.systemLogic = new Intelligence(false);
-//                System.out.println(systemLogic.recognize(new CarSnapshot("C:\\3.jpeg")));
-//            } catch (IOException e) {
-//                System.out.println(e);
-//            }
+            MainForm form = new MainForm();
         } else if (args.length==3 &&
                 args[0].equals("-recognize") &&
                 args[1].equals("-i")
                 ) {
-            // DONE load snapshot args[2] and recognize it
             try {
                 Main.systemLogic = new Intelligence(false);
                 System.out.println(systemLogic.recognize(new CarSnapshot(args[2])));
@@ -107,12 +83,9 @@ public class Main {
                 args[1].equals("-i") &&
                 args[3].equals("-o")
                 ) {
-            // load snapshot arg[2] and generate report into arg[4]
             try {
-                Main.rg = new ReportGenerator(args[4]);     //prepare report generator
-                Main.systemLogic = new Intelligence(true); //prepare intelligence
+                Main.systemLogic = new Intelligence(true);
                 Main.systemLogic.recognize(new CarSnapshot(args[2]));
-                Main.rg.finish();
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
@@ -121,7 +94,6 @@ public class Main {
                 args[0].equals("-newconfig") &&
                 args[1].equals("-o")
                 ) {
-            // DONE save default config into args[2]
             Configurator configurator = new Configurator();
             try {
                 configurator.saveConfiguration(args[2]);
@@ -132,7 +104,6 @@ public class Main {
                 args[0].equals("-newnetwork") &&
                 args[1].equals("-o")
                 ) {
-            // DONE learn new neural network and save it into into args[2]
             try {
                 learnAlphabet(args[2]);
             } catch (Exception e) {
@@ -143,14 +114,12 @@ public class Main {
                 args[1].equals("-i") &&
                 args[3].equals("-o")
                 ) {
-            // DONE transform alphabets from args[2] -> args[4]
             try {
                 newAlphabet(args[2],args[4]);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         } else {
-            // DONE display help
             System.out.println(helpText);
         }
     }

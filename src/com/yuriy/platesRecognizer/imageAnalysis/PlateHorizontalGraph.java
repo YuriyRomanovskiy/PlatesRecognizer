@@ -5,7 +5,7 @@ import com.yuriy.platesRecognizer.inteligence.Intelligence;
 import java.util.Vector;
 
 public class PlateHorizontalGraph extends Graph {
-    private static double peakFootConstant =// 0.1;  /* CONSTANT*/
+    private static double peakFootConstant =// 0.1;
             Intelligence.configurator.getDoubleProperty("platehorizontalgraph_peakfootconstant");
     private static int horizontalDetectionType =
             Intelligence.configurator.getIntProperty("platehorizontalgraph_detectionType");
@@ -25,7 +25,7 @@ public class PlateHorizontalGraph extends Graph {
         return findPeak_derivate(count);
     }
 
-    public Vector<Peak> findPeak_derivate(int count) {  // RIESENIE DERIVACIOU
+    public Vector<Peak> findPeak_derivate(int count) {
         int a,b;
         float maxVal = this.getMaxValue();
 

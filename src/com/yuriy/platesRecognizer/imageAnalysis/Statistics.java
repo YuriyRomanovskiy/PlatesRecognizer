@@ -29,7 +29,6 @@ public class Statistics {
         }
         int count = (w * h);
         this.average = sum / count;
-        // rozptyl = priemer stvorcov + stvorec priemeru
         this.dispersion = ( sum2 / count ) - ( this.average * this.average);
     }
 

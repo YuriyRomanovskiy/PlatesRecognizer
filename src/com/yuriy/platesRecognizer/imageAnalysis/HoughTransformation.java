@@ -29,18 +29,12 @@ public class HoughTransformation {
     }
 
     public void addLine(int x, int y, float brightness) {
-        // posunieme suradnicovu sustavu do stredu : -1 .. 1, -1 .. 1
         float xf = 2*((float)x)/this.width - 1;
         float yf = 2*((float)y)/this.height - 1;
-        // y=ax + b
-        // b = y - ax
 
         for (int a=0; a<this.width;a++) {
-            // posunieme a do stredu
             float af = 2*((float)a)/this.width - 1;
-            // vypocitame b
             float bf = yf - af * xf;
-            // b posumieme do povodneho suradnicoveho systemu
             int b = (int)(  (bf+1)*this.height/2  );
 
             if (0 < b && b < this.height-1) {
@@ -94,7 +88,6 @@ public class HoughTransformation {
         for (int x=0; x<this.width; x++) {
             for (int y=0; y<this.height; y++) {
                 int value = (int)(255 * this.bitmap[x][y] / average/3);
-                //int value = (int)Math.log(this.bitmap[x][y]*1000);
                 value = Math.max(0,Math.min(value,255));
                 if (colorType == HoughTransformation.COLOR_BW) {
                     output.setRGB(x,y, new Color(value,value,value).getRGB());

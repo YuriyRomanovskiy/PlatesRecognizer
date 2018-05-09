@@ -10,9 +10,6 @@ import java.util.Vector;
 
 public abstract class CharacterRecognizer {
 
-    // rozpoznavane pismena :
-    // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35
-    // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
     public static char[] alphabet = {
             '0','1','2','3','4','5','6','7','8','9','A','B','C',
             'D','E','F','G','H','I','J','K','L','M','N','O','P',
@@ -89,7 +86,7 @@ public abstract class CharacterRecognizer {
 
         public Vector<RecognizedPattern> getPatterns() {
             if (this.isSorted) return this.patterns;
-            return null; // if not sorted
+            return null;
         }
         public RecognizedPattern getPattern(int i) {
             if (this.isSorted) return this.patterns.elementAt(i);
@@ -138,8 +135,6 @@ public abstract class CharacterRecognizer {
         }
     }
 
-
-    /** Creates a new instance of CharacterRecognizer */
     public CharacterRecognizer() {
     }
 

@@ -9,11 +9,9 @@ public class PixelMap {
     private class Point {
         int x;
         int y;
-        //     boolean deleted;
         Point(int x, int y) {
             this.x=x;
             this.y=y;
-            //        this.deleted = false;
         }
         boolean equals(Point p2) {
             if (p2.x == this.x && p2.y == this.y) return true;
@@ -130,8 +128,6 @@ public class PixelMap {
         }
     }
 
-
-    // row column
     boolean[][] matrix;
     private int width;
     private int height;
@@ -153,7 +149,7 @@ public class PixelMap {
         }
     }
 
-    // renderuje celu maticu
+
     public BufferedImage render() {
         BufferedImage image = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
         for (int x=0; x<this.width; x++) {
@@ -175,16 +171,14 @@ public class PixelMap {
     }
 
     private boolean getPointValue(int x, int y) {
-        // body mimo su automaticky biele
         if (x<0 || y<0 || x>=this.width || y>=this.height) return false;
         return matrix[x][y];
     }
 
     private boolean isBoundaryPoint(int x, int y) {
 
-        if (!getPointValue(x,y)) return false; // ak je bod biely, return false
+        if (!getPointValue(x,y)) return false;
 
-        // konturovy bod ma aspon jeden bod v okoli biely
         if (!getPointValue(x-1,y-1) ||
                 !getPointValue(x-1,y+1) ||
                 !getPointValue(x+1,y-1) ||
@@ -200,7 +194,7 @@ public class PixelMap {
 
 
 
-    private int n(int x, int y) { // pocet ciernych bodov v okoli
+    private int n(int x, int y) {
         int n=0;
         if (getPointValue(x-1,y-1)) n++;
         if (getPointValue(x-1,y+1)) n++;
@@ -213,10 +207,8 @@ public class PixelMap {
         return n;
     }
 
-    // number of 0-1 transitions in ordered sequence 2,3,...,8,9,2
     private int t(int x, int y) {
-        int n=0; // number of 0-1 transitions
-        // proceeding tranisions 2-3, 3-4, 4-5, 5-6, 6-7, 7-8, 8-9, 9-2
+        int n=0;
         for (int i=2; i<=8; i++) {
             if (!p(i,x,y) && p(i+1,x,y)) n++;
         }
@@ -224,11 +216,6 @@ public class PixelMap {
         return n;
     }
 
-    /** okolie bodu p1
-     *     p9  p2  p3
-     *     p8  p1  p4
-     *     p7  p6  p5
-     */
     private boolean p(int i, int x, int y) {
         if (i==1) return getPointValue(x,y);
         if (i==2) return getPointValue(x,y-1);
@@ -269,8 +256,7 @@ public class PixelMap {
         }
     }
 
-    public PixelMap skeletonize() { // vykona skeletonizaciu
-        // thinning procedure
+    public PixelMap skeletonize() {
         PointSet flaggedPoints = new PointSet();
         PointSet boundaryPoints = new PointSet();
         boolean cont;
@@ -278,22 +264,20 @@ public class PixelMap {
         do {
             cont = false;
             findBoundaryPoints(boundaryPoints);
-            // apply step 1 to flag boundary points for deletion
             for (Point p : boundaryPoints) {
                 if (step1passed(p.x, p.y)) flaggedPoints.add(p);
             }
-            // delete flagged points
+
             if (!flaggedPoints.isEmpty()) cont = true;
             for (Point p : flaggedPoints) {
                 this.matrix[p.x][p.y] = false;
                 boundaryPoints.remove(p);
             }
             flaggedPoints.clear();
-            // apply step 2 to flag remaining points
             for (Point p : boundaryPoints) {
                 if (step2passed(p.x, p.y)) flaggedPoints.add(p);
             }
-            // delete flagged points
+
             if (!flaggedPoints.isEmpty()) cont = true;
             for (Point p : flaggedPoints) {
                 this.matrix[p.x][p.y] = false;
@@ -305,44 +289,40 @@ public class PixelMap {
         return (this);
     }
 
-    // redukcia sumu /////////////////////////////
+
 
     public PixelMap reduceNoise() {
         PointSet pointsToReduce = new PointSet();
         for (int x=0; x<this.width; x++) {
             for (int y=0; y<this.height; y++) {
-                if (n(x,y) < 4) pointsToReduce.add(new Point(x,y)); // doporucene 4
+                if (n(x,y) < 4) pointsToReduce.add(new Point(x,y));
             }
         }
-        // zmazemee oznacene body
+
+
         for (Point p : pointsToReduce) this.matrix[p.x][p.y] = false;
         return (this);
     }
 
-    // reduce other pieces /////////////////////////////
+
 
     private boolean isInPieces(PieceSet pieces, int x, int y) {
-        for (Piece piece : pieces) // pre vsetky kusky
-            for (Point point : piece) // pre vsetky body na kusku
+        for (Piece piece : pieces)
+            for (Point point : piece)
                 if (point.equals(x,y)) return true;
 
         return false;
     }
 
     private boolean seedShouldBeAdded(Piece piece, Point p) {
-        // ak sa nevymyka okrajom
         if (p.x<0 || p.y<0 || p.x>=this.width || p.y>=this.height) return false;
-        // ak je cierny,
         if (!this.matrix[p.x][p.y]) return false;
-        // ak este nie je sucastou ziadneho kuska
         for (Point piecePoint : piece)
             if (piecePoint.equals(p)) return false;
         return true;
     }
 
-    // vytvori novy piece, najde okolie (piece) napcha donho vsetky body a vrati
-    // vstupom je nejaka mnozina "ciernych" bodov, z ktorej algoritmus tie
-    // body  vybera
+
     private Piece createPiece(PointSet unsorted) {
 
         Piece piece = new Piece();
@@ -366,48 +346,28 @@ public class PixelMap {
     }
 
     public PieceSet findPieces() {
-        //boolean continueFlag;
+
         PieceSet pieces = new PieceSet();
 
-        // vsetky cierne body na kopu.
+
         PointSet unsorted = new PointSet();
         for (int x=0; x<this.width; x++)
             for (int y=0; y<this.height; y++)
                 if (this.matrix[x][y]) unsorted.add(new Point(x,y));
 
-        // pre kazdy cierny bod z kopy,
+
         while (!unsorted.isEmpty()) {
-            // createPiece vytvori novy piece s tym ze vsetky pouzite body vyhodi von z kopy
 
             pieces.add(createPiece(unsorted));
         }
-        /*
-        do {
-            continueFlag = false;
-            boolean loopBreak = false;
-            for (int x = 0; x<this.width; x++) {
-                for (int y = 0; y<this.height; y++) { // for each pixel
-                    // ak je pixel cierny, a nie je sucastou ziadneho kuska
-                    if (this.matrix[x][y] && !isInPieces(pieces,x,y)) {
-                        continueFlag = true;
-                        pieces.add(createPiece(x,y));
-                    }
-                }// for y
-            } // for x
-        } while (continueFlag);
-         */
         return pieces;
     }
 
-
-    // redukuje ostatne pieces a vracia ten najlepsi
     public PixelMap reduceOtherPieces() {
-        if (this.bestPiece != null) return this; // bestPiece uz je , netreba dalej nic
-
+        if (this.bestPiece != null) return this;
         PieceSet pieces = findPieces();
         int maxCost = 0;
         int maxIndex = 0;
-        // najdeme najlepsi cost
         for (int i=0; i<pieces.size(); i++) {
             if (pieces.elementAt(i).cost() > maxCost) {
                 maxCost = pieces.elementAt(i).cost();
@@ -415,7 +375,6 @@ public class PixelMap {
             }
         }
 
-        // a ostatne zmazeme
         for (int i=0; i<pieces.size(); i++) {
             if (i != maxIndex) pieces.elementAt(i).bleachPiece();
         }

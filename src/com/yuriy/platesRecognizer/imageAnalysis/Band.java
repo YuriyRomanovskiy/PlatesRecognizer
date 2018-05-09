@@ -28,7 +28,7 @@ public class Band extends Photo {
     }
 
     private Vector<Graph.Peak> computeGraph() {
-        if (graphHandle != null) return graphHandle.peaks; // graf uz bol vypocitany
+        if (graphHandle != null) return graphHandle.peaks;
         BufferedImage imageCopy = duplicateBufferedImage(this.image);
         fullEdgeDetector(imageCopy);
         graphHandle = histogram(imageCopy);
@@ -44,8 +44,6 @@ public class Band extends Photo {
         Vector<Graph.Peak> peaks = computeGraph();
 
         for (int i=0; i<peaks.size(); i++) {
-            // vyseknut z povodneho! obrazka znacky, a ulozit do vektora. POZOR !!!!!! Vysekavame z povodneho, takze
-            // na suradnice vypocitane z imageCopy musime uplatnit inverznu transformaciu
             Graph.Peak p = peaks.elementAt(i);
             out.add(new Plate(
                     image.getSubimage(  p.getLeft()  ,
@@ -58,14 +56,6 @@ public class Band extends Photo {
         return out;
     }
 
-//    public void horizontalRankBi(BufferedImage image) {
-//        BufferedImage imageCopy = duplicateBi(image);
-//
-//        float data[] = new float[image.getHeight()];
-//        for (int i=0; i<data.length; i++) data[i] = 1.0f/data.length;
-//
-//        new ConvolveOp(new Kernel(data.length,1, data), ConvolveOp.EDGE_NO_OP, null).filter(imageCopy, image);
-//    }
 
     public BandGraph histogram(BufferedImage bi) {
         BandGraph graph = new BandGraph(this);

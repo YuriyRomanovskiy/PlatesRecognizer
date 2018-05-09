@@ -159,19 +159,10 @@ public class Photo {
     public void averageResize(int width, int height) {
         this.image = averageResizeBi(this.image,width,height);
     }
-    // TODO : nefunguje dobre pre znaky podobnej velkosti ako cielvoa velkost
     public BufferedImage averageResizeBi(BufferedImage origin, int width, int height) {
 
         if (origin.getWidth() < width || origin.getHeight() < height)
-            return linearResizeBi(origin,width,height); // average height sa nehodi
-        // na zvacsovanie, preto ak zvacsujeme v smere x alebo y, pouzijeme
-        // radsej linearnu transformaciu
-
-        /* java api standardne zmensuje obrazky bilinearnou metodou, resp. linear mapping.
-         * co so sebou prinasa dost velku stratu informacie. Idealna by bola fourierova
-         * transformacia, ale ta neprichadza do uvahy z dovodu velkej cesovej narocnosti
-         * preto sa ako optimalna javi metoda WEIGHTED AVERAGE
-         */
+            return linearResizeBi(origin,width,height);
         BufferedImage resized = new BufferedImage(width, height ,BufferedImage.TYPE_INT_RGB);
 
         float xScale = (float)origin.getWidth() / width;
@@ -185,7 +176,6 @@ public class Photo {
                 int y0min = Math.round(y * yScale);
                 int y0max = Math.round((y+1) * yScale);
 
-                // spravit priemer okolia a ulozit do resizedImage;
                 float sum = 0;
                 int sumCount = 0;
 
@@ -197,7 +187,6 @@ public class Photo {
                 }
                 sum /= sumCount;
                 setBrightness(resized, x, y, sum);
-                //
             }
         }
         return resized;
@@ -212,7 +201,7 @@ public class Photo {
         return imageCopy;
     }
 
-    static void thresholding(BufferedImage bi) { // TODO: optimalizovat
+    static void thresholding(BufferedImage bi) {
         short[] threshold = new short[256];
         for (short i=0; i<36; i++) threshold[i] = 0;
         for (short i=36; i<256; i++) threshold[i]=i;
@@ -257,7 +246,6 @@ public class Photo {
                 array[x+1][y+1] = Photo.getBrightness(image,x,y);
             }
         }
-        // vynulovat hrany :
         for (int x=0; x<w+2; x++) {
             array[x][0] = 1;
             array[x][h+1] = 1;
@@ -289,7 +277,7 @@ public class Photo {
         return imageCopy;
     }
 
-    public BufferedImage sumBi(BufferedImage bi1, BufferedImage bi2) { //used by edgeDetectors
+    public BufferedImage sumBi(BufferedImage bi1, BufferedImage bi2) {
         BufferedImage out = new BufferedImage(Math.min(bi1.getWidth(), bi2.getWidth()),
                 Math.min(bi1.getHeight(), bi2.getHeight()),
                 BufferedImage.TYPE_INT_RGB);
@@ -311,8 +299,8 @@ public class Photo {
         }
     }
 
-    /**ADAPTIVE THRESHOLDING CEZ GETNEIGHBORHOOD - deprecated*/
-    public void adaptiveThresholding() { // jedine pouzitie tejto funkcie by malo byt v konstruktore znacky
+
+    public void adaptiveThresholding() {
         Statistics stat = new Statistics(this);
         int radius = Intelligence.configurator.getIntProperty("photo_adaptivethresholdingradius");
         if (radius == 0) {
@@ -320,7 +308,7 @@ public class Photo {
             return;
         }
 
-///
+
         int w = this.getWidth();
         int h = this.getHeight();
 
@@ -332,7 +320,6 @@ public class Photo {
 
         for (int x=0; x<w; x++) {
             for (int y=0; y<h; y++) {
-                // compute neighborhood
                 count = 0;
                 neighborhood = 0;
                 for (int ix = x-radius; ix <=x+radius; ix++) {
@@ -341,16 +328,9 @@ public class Photo {
                             neighborhood += sourceArray[ix][iy];
                             count++;
                         }
-                        /********/
-//                        else {
-//                            neighborhood += stat.average;
-//                            count++;
-//                        }
-                        /********/
                     }
                 }
                 neighborhood /= count;
-                //
                 if (destinationArray[x][y] < neighborhood) {
                     destinationArray[x][y] = 0f;
                 }  else {

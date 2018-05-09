@@ -12,7 +12,6 @@ public class Char extends Photo {
     public boolean normalized = false;
     public PositionInPlate positionInPlate = null;
 
-    //private PixelMap pixelMap;
     private PixelMap.Piece bestPiece = null;
 
     public int fullWidth, fullHeight, pieceWidth, pieceHeight;
@@ -40,17 +39,12 @@ public class Char extends Photo {
         this(bi,bi,null);
         init();
     }
-    // nacita znak zo suboru a hned vykona aj thresholding
-    // prahovanie(thresholding) sa vacsinou u znakov nerobi, pretoze znaky sa vysekavaju
-    // zo znacky, ktora uz je sama o sebe prahovana, ale nacitavanie zo suboru tomuto
-    // principu nezodpoveda, cize spravime prahovanie zvlast :
+
     public Char(String filepath) throws IOException {
         super(filepath);
-        // this.thresholdedImage = this.image; povodny kod, zakomentovany dna 23.12.2006 2:33 AM
 
-        // nasledovne 4 riadky pridane 23.12.2006 2:33 AM
         BufferedImage origin = Photo.duplicateBufferedImage(this.image);
-        this.adaptiveThresholding(); // s ucinnostou nad this.image
+        this.adaptiveThresholding();
         this.thresholdedImage = this.image;
         this.image = origin;
 
@@ -75,17 +69,12 @@ public class Char extends Photo {
         BufferedImage colorImage = this.duplicateBufferedImage(this.getBi());
         this.image = this.thresholdedImage;
 
-/*      NEBUDEME POUZIVAT // tu treba osetrit pripady, ked je prvy alebo posledny riadok cely cierny (zmenime na biely)
-        boolean flag = false;
-        for (int x=0; x<this.getWidth(); x++) if (this.getBrightness(x,0) > 0.5f) flag = true;
-        if (flag == false) for (int x=0; x<this.getWidth(); x++) this.setBrightness(x,0,1.0f);  */
         PixelMap pixelMap = this.getPixelMap();
 
         this.bestPiece = pixelMap.getBestPiece();
 
         colorImage = getBestPieceInFullColor(colorImage, this.bestPiece);
 
-        // vypocet statistik
         this.computeStatisticBrightness(colorImage);
         this.computeStatisticContrast(colorImage);
         this.computeStatisticHue(colorImage);
@@ -111,15 +100,14 @@ public class Char extends Photo {
                 piece.height);
     }
 
-    private void normalizeResizeOnly() { // vracia ten isty Char, nie novy
+    private void normalizeResizeOnly() {
 
         int x = Intelligence.configurator.getIntProperty("char_normalizeddimensions_x");
         int y = Intelligence.configurator.getIntProperty("char_normalizeddimensions_y");
-        if (x==0 || y==0) return;// nebude resize
-        //this.linearResize(x,y);
+        if (x==0 || y==0) return;
 
         if (Intelligence.configurator.getIntProperty("char_resizeMethod")==0) {
-            this.linearResize(x,y); // radsej weighted average
+            this.linearResize(x,y);
         } else {
             this.averageResize(x,y);
         }
@@ -127,7 +115,7 @@ public class Char extends Photo {
         this.normalizeBrightness(0.5f);
     }
 
-    ///////////////////////////////////////////////////////
+
     private void computeStatisticContrast(BufferedImage bi) {
         float sum = 0;
         int w = bi.getWidth();
@@ -185,24 +173,21 @@ public class Char extends Photo {
         return new PixelMap(this);
     }
 
-    ////////
-
     public Vector<Double> extractEdgeFeatures() {
         int w = this.image.getWidth();
         int h = this.image.getHeight();
         double featureMatch;
 
         float[][] array = this.bufferedImageToArrayWithBounds(this.image,w,h);
-        w+=2; // pridame okraje
+        w+=2;
         h+=2;
 
         float[][] features = CharacterRecognizer.features;
-        //Vector<Double> output = new Vector<Double>(features.length*4);
         double[] output = new double[features.length*4];
 
-        for (int f=0; f<features.length; f++) { // cez vsetky features
+        for (int f=0; f<features.length; f++) {
             for (int my=0; my<h-1; my++) {
-                for (int mx=0; mx<w-1; mx++) { // dlazdice x 0,2,4,..8 vcitane
+                for (int mx=0; mx<w-1; mx++) {
                     featureMatch = 0;
                     featureMatch += Math.abs(array[mx][my] - features[f][0]);
                     featureMatch += Math.abs(array[mx+1][my] - features[f][1]);
@@ -210,12 +195,12 @@ public class Char extends Photo {
                     featureMatch += Math.abs(array[mx+1][my+1] - features[f][3]);
 
                     int bias = 0;
-                    if (mx >= w/2) bias += features.length; // ak je v kvadrante napravo , posunieme bias o jednu triedu
-                    if (my >= h/2) bias += features.length*2; // ak je v dolnom kvadrante, posuvame bias o 2 triedy
+                    if (mx >= w/2) bias += features.length;
+                    if (my >= h/2) bias += features.length*2;
                     output[bias+f] += featureMatch < 0.05 ? 1 : 0;
-                } // end my
-            } // end mx
-        } // end f
+                }
+            }
+        }
         Vector<Double> outputVector = new Vector<Double>();
         for (Double value : output) outputVector.add(value);
         return outputVector;
@@ -236,8 +221,6 @@ public class Char extends Photo {
         else
             return this.extractEdgeFeatures();
     }
-
-
 }
 
 

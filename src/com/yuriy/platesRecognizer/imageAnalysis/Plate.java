@@ -16,7 +16,7 @@ public class Plate extends Photo {
     private PlateGraph graphHandle = null;
     public Plate plateCopy;
 
-    /** Creates a new instance of Character */
+
     public Plate() {
         image = null;
     }
@@ -37,9 +37,9 @@ public class Plate extends Photo {
     }
 
     private Vector<Graph.Peak> computeGraph() {
-        if (graphHandle != null) return graphHandle.peaks; // graf uz bol vypocitany
+        if (graphHandle != null) return graphHandle.peaks;
 
-        graphHandle = histogram(plateCopy.getBi()); //PlateGraph graph = histogram(imageCopy);
+        graphHandle = histogram(plateCopy.getBi());
         graphHandle.applyProbabilityDistributor(distributor);
         graphHandle.findPeaks(numberOfCandidates);
 
@@ -52,8 +52,6 @@ public class Plate extends Photo {
         Vector<Graph.Peak> peaks = computeGraph();
 
         for (int i=0; i<peaks.size(); i++) {
-            // vyseknut z povodneho! obrazka znacky, a ulozit do vektora. POZOR !!!!!! Vysekavame z povodneho, takze
-            // na suradnice vypocitane z imageCopy musime uplatnit inverznu transformaciu
             Graph.Peak p = peaks.elementAt(i);
             if (p.getDiff() <= 0) continue;
             out.add(new Char(
@@ -90,10 +88,6 @@ public class Plate extends Photo {
     }
 
     public void normalize() {
-        // pre ucely orezania obrazka sa vytvori klon ktory sa normalizuje a prahuje s
-        // koeficientom 0.999. funkcie cutTopBottom a cutLeftRight orezu originalny
-        // obrazok na zaklade horizontalnej a vertikalnej projekcie naklonovaneho
-        // obrazka, ktory je prahovany
 
         Plate clone1 = this.clone();
         clone1.verticalEdgeDetector(clone1.getBi());
@@ -279,14 +273,4 @@ public class Plate extends Photo {
         averageHeight /= chars.size();
         return averageHeight;
     }
-
-//    public float getAverageCharSquare(Vector<Char> chars) {
-//        float average = 0;
-//        for (Char chr : chars)
-//            average += chr.getWidth() * chr.getHeight();
-//        average /= chars.size();
-//        return average;
-//    }
-
-
 }
